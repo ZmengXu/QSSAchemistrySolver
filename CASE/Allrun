@@ -1,0 +1,28 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Set application name
+application=`getApplication`
+
+# Set the chemistrySolver as ode, and use "$FOAM_CASE/chemkin/30species/chem.inp" as chemistry
+foamDictionary -entry "chemistryType.chemistrySolver" -set "ode" constant/chemistryProperties
+foamDictionary -entry "CHEMKINFile" -set "\"\$FOAM_CASE/chemkin/30species/chem.inp\"" constant/thermophysicalProperties
+runApplication $application
+# copy the log file for validation
+cp chemFoam.out validation/30species.out
+
+# Compile fortran ckwyp.f file to get a library, where a function is defined
+# Set the chemistrySolver as QSS, and use "$FOAM_CASE/chemkin/30species/chem.inp" as chemistry
+gfortran -shared -fPIC -o chemkin/libMechnism19sCH4.so chemkin/19species/ckwyp.f
+foamDictionary -entry "chemistryType.chemistrySolver" -set "QSS" constant/chemistryProperties
+foamDictionary -entry "CHEMKINFile" -set "\"\$FOAM_CASE/chemkin/19species/chem.inp\"" constant/thermophysicalProperties
+runApplication -o $application
+# copy the log file for validation
+cp chemFoam.out validation/19species.out
+
+(cd validation && ./Allrun $*)
+
+#------------------------------------------------------------------------------

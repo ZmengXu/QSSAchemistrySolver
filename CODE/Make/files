@@ -1,0 +1,3 @@
+chemistrySolver/makeChemistrySolvers.C
+
+LIB = $(FOAM_USER_LIBBIN)/libQSSchemistryModel
