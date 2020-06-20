@@ -95,7 +95,7 @@ class QSS
     // Private data
 
         dictionary coeffsDict_;
-        autoPtr<ODESolver> odeSolver_;
+        mutable autoPtr<ODESolver> odeSolver_;
 
         // Solver data
         mutable scalarField cTp_;
@@ -111,8 +111,8 @@ public:
 
     // Constructors
 
-        //- Construct from mesh and phase name
-        QSS(const fvMesh& mesh, const word& phaseName);
+        //- Construct from thermo
+        QSS(typename ChemistryModel::reactionThermo& thermo);
 
 
     //- Destructor
@@ -139,13 +139,23 @@ public:
             scalarSquareMatrix& dfdc
         ) const;
         
-        tmp<scalarField> omega
+        //- dc/dt = omega, rate of change in concentration, for each species
+        // This function is for OpenFOAM-7 or higher
+        // In OpenFOAM-4, it is 
+        //tmp<scalarField> omega
+        //(
+        //    const scalarField& c,
+        //    const scalar T,
+        //    const scalar p
+        //) const;
+        virtual void omega
         (
             const scalarField& c,
             const scalar T,
-            const scalar p
+            const scalar p,
+            scalarField& dcdt
         ) const;
-        
+
         template<class ThermoType>
         scalar omega
         (
@@ -174,13 +184,14 @@ public:
             scalar& cr,
             label& rRef
         ) const;
-        
-        virtual tmp<DimensionedField<scalar, volMesh> > calculateRR
+
+        //- Return reaction rate of the speciei in reactionI
+        virtual tmp<volScalarField::Internal> calculateRR
         (
             const label reactionI,
-            const label specieI    
+            const label speciei
         ) const;
-        
+
         virtual tmp<volScalarField> tc() const;
 };
 

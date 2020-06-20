@@ -2,7 +2,7 @@
 The quasi-steady-state approximation chemistry solver for OpenFOAM 4 and 7
 This repository is migrated from [adhiraj-dasgupta/unsupportedContribOF23x](https://github.com/adhiraj-dasgupta/unsupportedContribOF23x). For OpenFOAM-2.3, please refer to that repository.
 
-This repository works for OpenFOAM-4.x and OpenFOAM-7 (of7 branch).
+This repository works for OpenFOAM-4.x (master branch) and OpenFOAM-7 (of7 branch).
 
 For OpenFOAM-2.3,
 
@@ -32,3 +32,6 @@ c) In $FOAM_CASE/constant/chemistryProperties
         relTol          0.1;
     }
 
+Here's the temperature profile results for 19 species QSS and 30 species mechanism.
+
+![TemperatureTrace](OF_vs_QSS.eps)

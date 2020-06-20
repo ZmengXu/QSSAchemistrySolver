@@ -29,11 +29,10 @@
 template<class ChemistryModel>
 Foam::QSS<ChemistryModel>::QSS
 (
-    const fvMesh& mesh,
-    const word& phaseName
+    typename ChemistryModel::reactionThermo& thermo
 )
 :
-    chemistrySolver<ChemistryModel>(mesh, phaseName),
+    chemistrySolver<ChemistryModel>(thermo),
     coeffsDict_(this->subDict("QSSCoeffs")),
     odeSolver_(ODESolver::New(*this, coeffsDict_)),
     cTp_(this->nEqns())
@@ -62,11 +61,17 @@ void Foam::QSS<ChemistryModel>::solve
     scalar& subDeltaT
 ) const
 {
+    // Reset the size of the ODE system to the simplified size when mechanism
+    // reduction is active
+    if (odeSolver_->resize())
+    {
+        odeSolver_->resizeField(cTp_);
+    }
 
-    label nSpecie = this->nSpecie();
+    const label nSpecie = this->nSpecie();
 
     // Copy the concentration, T and P to the total solve-vector
-    for (register int i=0; i<nSpecie; i++)
+    for (int i=0; i<nSpecie; i++)
     {
         cTp_[i] = c[i];
     }
@@ -75,7 +80,7 @@ void Foam::QSS<ChemistryModel>::solve
 
     odeSolver_->solve(0, deltaT, cTp_, subDeltaT);
 
-    for (register int i=0; i<nSpecie; i++)
+    for (int i=0; i<nSpecie; i++)
     {
         c[i] = max(0.0, cTp_[i]);
     }
@@ -117,11 +122,12 @@ void Foam::QSS<ChemistryModel>::jacobian
 }
 
 template<class ChemistryModel>
-Foam::tmp<Foam::scalarField> Foam::QSS<ChemistryModel>::omega
+void Foam::QSS<ChemistryModel>::omega
 (
     const scalarField& c,
     const scalar T,
-    const scalar p
+    const scalar p,
+    scalarField& dcdt
 ) const
 {
     tmp<scalarField> tom(new scalarField(this->nEqns(), 0.0));
@@ -152,8 +158,8 @@ Foam::tmp<Foam::scalarField> Foam::QSS<ChemistryModel>::omega
         // mol/cm3/s to kmol/m3/s
         om[i] = dYdt[i]*1e3;
     }
-    
-    return tom;
+
+    dcdt = om;
 }
 
 template<class ChemistryModel>
@@ -196,7 +202,7 @@ Foam::scalar Foam::QSS<ChemistryModel>::omegaI
 }
 
 template<class ChemistryModel>
-Foam::tmp<Foam::DimensionedField<Foam::scalar, Foam::volMesh> >
+Foam::tmp<Foam::DimensionedField<Foam::scalar, Foam::volMesh>>
 Foam::QSS<ChemistryModel>::calculateRR
 (
     const label reactionI,
@@ -272,7 +278,7 @@ Foam::tmp<Foam::volScalarField> Foam::QSS<ChemistryModel>::tc() const
                 c[i] = rhoi*Ytmp0[i]/this->specieThermo_[i].W();
             }
             
-            dcdt = omega(c, Ti, pi);
+            omega(c, Ti, pi, dcdt);
             
             for (label i = 0; i < nSpecie; i++)
             {
