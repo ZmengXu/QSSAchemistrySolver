@@ -32,4 +32,4 @@ c) In $FOAM_CASE/constant/chemistryProperties
 
 Here's the temperature profile results for 19 species QSS and 30 species mechanism.
 
-![TemperatureTrace](OF_vs_CHEMKINII.pdf)
+![TemperatureTrace](download.jpeg)
