@@ -27,12 +27,8 @@ License
 #define makeChemistrySolverTypes_H
 
 #include "chemistrySolver.H"
-
 #include "chemistryModel.H"
 
-//#include "noChemistrySolver.H"
-//#include "EulerImplicit.H"
-//#include "ode.H"
 #include "QSS.H"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

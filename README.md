@@ -1,5 +1,10 @@
 # QSSAchemistrySolver
 The quasi-steady-state approximation chemistry solver for OpenFOAM 4 and 7
+This repository is migrated from [adhiraj-dasgupta/unsupportedContribOF23x](https://github.com/adhiraj-dasgupta/unsupportedContribOF23x). For OpenFOAM-2.3, please refer to that repository.
+
+This repository works for OpenFOAM-4.x and OpenFOAM-7 (of7 branch).
+
+For OpenFOAM-2.3,
 
 Demo in case:
 a) In $FOAM_CASE/system/controlDict, compile to get a QSS mechanism library,
